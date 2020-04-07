@@ -1,0 +1,84 @@
+.TH QSAFEEXEC 1
+
+.SH NAME
+qsafeexec \- Statically-linked wrapper for dynamicly linked executables that must be run with elevated privileges.
+
+.SH SYNOPSIS
+.B qsafeexec
+.IR command
+.IR [args]
+
+.SH COPYRIGHT
+Copyright (C) 2011 Dave Love, University of Liverpool (d.love@liverpool.ac.uk)
+
+.SH DESCRIPTION
+The 
+.I qsafeexec
+wrapper program is intended to address a Grid Engine security issue (CVE-2012-0208),
+but might be of more general use.
+.PP
+The issue concerns a trivial remote root on execution hosts for
+unprivileged valid users on submit hosts, but only for non-default
+configurations in recent versions.  It also affects versions before
+SGE 6.2 for probably any configuration with interactive queues.  The
+wrapper is intended for users who can't install a Grid Engine version
+with a fix (such as Son of Grid Engine 8.0.0e) 
+and who need to run external remote startup programs (like 
+.I ssh
+) or privileged Grid Engine prolog scripts etc.
+It implements the approach of Son of Grid Engine 8.0.0e,
+but as an add-on which executes the target command in a sanitized environment.
+For more information about the issue, see the security notes in
+.BR remote_startup (5)
+and
+.BR sge_conf (5)
+.
+.PP
+It should be used to protect Grid Engine remote startup programs (when not
+using the builtin method), and also the prolog etc. methods if they
+are run as a privileged user (the 
+.I <user>@
+prefix).  Configure it
+something like this with 
+.IP
+    qconf -mconf
+.IP
+or 
+.BR qmon (1)
+\'s 
+.I Cluster Configuration
+(see 
+.BR sge_conf (5)
+):
+.IP
+    ...
+    prolog         root@/usr/local/sbin/qsafeexec /opt/sge/bin/prolog
+    ...
+    qlogin_daemon  /usr/local/sbin/qsafeexec /usr/sbin/sshd -i
+    ...
+.IP
+
+and similarly for other methods you need.
+.PP
+.BR qsafeexec
+cleans the environment for the wrapped executable by scrubbing several environment variables: 
+.I LD_*, DYLD_LIBRARY_PATH, _RLD_*, LDR_*, LOCALDOMAIN, LOCPATH, MALLOC_TRACE, NIS_PATH, NLSPATH, RESOLV_HOST_CONF, RES_OPTIONS, TMPDIR, TZDIR, IFS, SHELLOPTS, PS4, PATH_LOCALE, PATH_LOCALE, TERMINFO, TERMINFO_DIRS, TERMPATH, TERMCAP, ENV, BASH_ENV, KRB5_CONFIG, KRB5_KTNAME, JAVA_TOOL_OPTIONS
+(plus 
+.I AUTHSTATE
+on AIX), and by performing sanity checks on locale-related variables.
+
+.SH "EXIT STATUS"
+Exit status is 0 if all is well or 1 if an unexpected locale is encountered, a seteuid check fails or an attempt to fork to start the wrapped program fails.
+
+.SH BUGS
+.PP
+The code is adpated from the Son of Grid Engine distribution
+<https://arc.liv.ac.uk/trac/SGE/> and has, unfortunately, not been
+properly reviewed.  Please report any problems directly to the
+author or via the issue tracker at the site above.
+
+.SH AUTHOR
+Dave Love (dave.love@manchester.ac.uk)
+
+.SH "SEE ALSO"
+sge_conf(5), remote_startup(5)
