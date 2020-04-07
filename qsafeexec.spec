@@ -27,22 +27,21 @@ make safe_exec %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 
-mkdir -p $RPM_BUILD_ROOT/usr/local/sbin
-install -m 0755 safe_exec $RPM_BUILD_ROOT/usr/local/sbin/%{name}
+mkdir -p $RPM_BUILD_ROOT/opt/%{name}/bin
+install -m 0755 safe_exec $RPM_BUILD_ROOT/opt/%{name}/bin/%{name}
 
-mkdir -p $RPM_BUILD_ROOT/usr/local/share/doc/%{name}-%{version}
-install -m 0644 README $RPM_BUILD_ROOT/usr/local/share/doc/%{name}-%{version}/README
+install -m 0644 README $RPM_BUILD_ROOT/opt/%{name}/
 
-mkdir -p $RPM_BUILD_ROOT/usr/local/share/man/man1
-install -m 0644 %{_sourcedir}/%{name}.1 $RPM_BUILD_ROOT/usr/local/share/man/man1/%{name}.1 
+mkdir -p $RPM_BUILD_ROOT/opt/%{name}/man/man1
+install -m 0644 %{_sourcedir}/%{name}.1 $RPM_BUILD_ROOT/opt/%{name}/man/man1/%{name}.1 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
-/usr/local/sbin/%{name}
-%doc /usr/local/share/doc/%{name}-%{version}/README
-%doc /usr/local/share/man/man1/%{name}.1 
+/opt/%{name}/bin/%{name}
+%doc /opt/%{name}/README
+%doc /opt/%{name}/man/man1/%{name}.1 
 
 %changelog
 

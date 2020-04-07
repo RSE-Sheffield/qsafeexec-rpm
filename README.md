@@ -30,9 +30,9 @@ Renamed to `qsafeexec` to more clearly indicate its origins (Grid Engine command
 > or `qmon`(1)'s *Cluster Configuration* (see `sge_conf` (5)):
 > 
 >     ...
->     prolog root@/usr/local/sbin/qsafeexec /opt/sge/bin/prolog
+>     prolog root@/opt/qsafeexec/bin/qsafeexec /opt/sge/bin/prolog
 >     ...
->     qlogin_daemon /usr/local/sbin/qsafeexec /usr/sbin/sshd -i
+>     qlogin_daemon /opt/qsafeexec/bin/qsafeexec /usr/sbin/sshd -i
 >     ...
 > 
 > and similarly for other methods you need.
@@ -49,6 +49,10 @@ checks on locale-related variables.
 > The code is adapted from the [Son of Grid Engine distribution](https://arc.liv.ac.uk/trac/SGE/)
 and has, unfortunately, not been properly reviewed. Please report any problems directly to the author or
 via the issue tracker at the site above.
+
+## RPM structure
+
+The `.spec` file in this repo will create an RPM that installs the qsafeexec binary and man page under `/opt/qsafeexec`.
 
 ## Building RPM for Centos 7
 

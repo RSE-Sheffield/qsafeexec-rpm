@@ -44,11 +44,14 @@ RUN yum-builddep -y $specfilepath
 USER unpriv
 RUN rpmbuild -bb $specfilepath
 
-# Check we can install, uninstall and reinstall the RPM
+# Checks: 
+# - we can install, uninstall and reinstall the RPM
+# - the qsafeexec executable is statically linked
+# - the qsafeexec executable scrubs undesirable vars from the wrapped executable's env
 USER root
 RUN rpm -ivh $rpmfilepath && \
     rpm -e $name && \
-    rpm -ivh $rpmfilepath
-
-USER unpriv
-CMD cp $rpmfilepath /out
+    rpm -ivh $rpmfilepath && \
+    file /opt/qsafeexec/bin/qsafeexec | grep -q 'statically linked' && \
+    export LD_PRELOAD=/usr/lib64/libxml2.so.2 && /opt/qsafeexec/bin/qsafeexec sh -c 'echo $LD_PRELOAD' | grep -vq libxml2 && \
+    export SOMEVAR=/usr/lib64/libxml2.so.2 && /opt/qsafeexec/bin/qsafeexec sh -c 'echo $SOMEVAR' | grep -q libxml2
