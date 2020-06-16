@@ -1,11 +1,10 @@
-# RPM packaging of Son of Grid Engine's safe_exec wrapper
+# gowdlerize: sanitise environments when running binaries with elevated privileges and user-supplied environments
 
-`qsafeexec`: statically-linked wrapper for dynamicly linked executables that must be run with elevated privileges.
-Renamed to `qsafeexec` to more clearly indicate its origins (Grid Engine commands all start with `q`).
+This is a statically-linked wrapper for dynamically linked executables that must be run with elevated privileges.
 
-`safe_exec` is copyright (C) 2011 Dave Love, University of Liverpool (`d.love@liverpool.ac.uk`).
+Based on `safe_exec` by Dave Love, University of Liverpool (`d.love@liverpool.ac.uk`), who said about that:
 
-> The `qsafeexec` wrapper program is intended to address a Grid Engine
+> The `safe_exec` wrapper program is intended to address a Grid Engine
 > security issue (CVE-2012-0208), but might be of more general use.
 > 
 > The issue concerns a trivial remote root on execution hosts for
@@ -37,33 +36,20 @@ Renamed to `qsafeexec` to more clearly indicate its origins (Grid Engine command
 > 
 > and similarly for other methods you need.
 
-`qsafeexec` cleans the environment for the wrapped executable by
-scrubbing several environment variables: `LD_*`, `DYLD_LIBRARY_PATH`,
-`_RLD_*`, `LDR_*`, `LOCALDOMAIN`, `LOCPATH`, `MALLOC_TRACE`, `NIS_PATH`,
-`NLSPATH`, `RESOLV_HOST_CONF`, `RES_OPTIONS`, `TMPDIR`, `TZDIR`, `IFS`,
-`SHELLOPTS`, `PS4`, `PATH_LOCALE`, `PATH_LOCALE`, `TERMINFO`, `TERMINFO_DIRS`,
-`TERMPATH`, `TERMCAP`, `ENV`, `BASH_ENV`, `KRB5_CONFIG`, `KRB5_KTNAME`,
-`JAVA_TOOL_OPTIONS` (plus `AUTHSTATE` on AIX), and by performing sanity
-checks on locale-related variables.
+`gowderlize` cleans the environment for the wrapped executable by
+scrubbing several environment variables (inc those deemed bad
+by glibc for supplying to setuid programs and those blacklisted by sudo)
+and by performing sanity checks on locale-related variables.
 
-> The code is adapted from the [Son of Grid Engine distribution](https://arc.liv.ac.uk/trac/SGE/)
-and has, unfortunately, not been properly reviewed. Please report any problems directly to the author or
-via the issue tracker at the site above.
 
-## RPM structure
-
-The `.spec` file in this repo will create an RPM that installs the qsafeexec binary and man page under `/opt/qsafeexec`.
-
-## Building RPM for Centos 7
+## Building
 
 ```sh
-docker build  --build-arg=name=qsafeexec --build-arg=version=0.1 --build-arg=release=1 .
-docker create $image  # returns container ID
-docker cp $container_id:/home/unpriv/rpmbuild/RPMS/x86_64/qsafeexec-0.1-1.el7.x86_64.rpm .
-docker rm $container_id
+go build -o gowdlerize cmd/gowdlerize/main.go
 ```
 
-## Building RPM for Centos 6
+## Building
 
-* Modify the RHEL version in the first two lines of the Dockerfile
-* Repeat the Centos 7 steps shown above but replace `el7` with `el6`
+```sh
+go test ./...
+```
